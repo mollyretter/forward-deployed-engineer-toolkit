@@ -1,0 +1,15 @@
+{
+  "name": "forward-deployed-engineer-toolkit",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A toolkit for shipping AI into messy real-world domains. Skills + packages, every tool dual-shaped (Claude Code skill + importable schema/library).",
+  "license": "MIT",
+  "author": "Molly Retter",
+  "workspaces": [
+    "packages/*",
+    "skills/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}
