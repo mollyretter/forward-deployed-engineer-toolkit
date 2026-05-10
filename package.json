@@ -5,10 +5,24 @@
   "description": "A toolkit for shipping AI into messy real-world domains. Skills + packages, every tool dual-shaped (Claude Code skill + importable schema/library).",
   "license": "MIT",
   "author": "Molly Retter",
+  "type": "module",
   "workspaces": [
     "packages/*",
     "skills/*"
   ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate:skills": "node scripts/validate-skills.mjs",
+    "ci": "npm run validate:skills && npm test"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  },
   "engines": {
     "node": ">=20"
   }

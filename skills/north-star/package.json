@@ -1,0 +1,23 @@
+{
+  "name": "@forward-deployed-engineer-toolkit/north-star",
+  "version": "0.2.1",
+  "description": "Schema and parser for the north-star skill's locked artifact (docs/00-north-star.md).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./schema.ts",
+  "types": "./schema.ts",
+  "exports": {
+    ".": {
+      "types": "./schema.ts",
+      "default": "./schema.ts"
+    }
+  },
+  "files": [
+    "schema.ts",
+    "SKILL.md",
+    "README.md"
+  ],
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}
