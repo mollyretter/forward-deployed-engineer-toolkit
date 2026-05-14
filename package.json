@@ -14,12 +14,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:skills": "node scripts/validate-skills.mjs",
+    "braintrust:smoke": "tsx scripts/braintrust-smoke-test.ts",
+    "append-trace": "tsx scripts/append-trace.ts",
+    "flush-traces": "tsx scripts/flush-traces.ts",
+    "promote-to-dataset": "tsx scripts/promote-to-dataset.ts",
     "ci": "npm run validate:skills && npm test"
   },
   "dependencies": {
+    "braintrust": "^3.10.0",
     "gray-matter": "^4.0.3"
   },
   "devDependencies": {
+    "tsx": "^4.21.0",
     "typescript": "^5.5.0",
     "vitest": "^2.1.0"
   },

@@ -1,0 +1,36 @@
+name: Braintrust Evals
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# pull-requests: write is required so braintrustdata/eval-action can post the
+# results comment on the PR. contents: read is the default but we list it
+# explicitly for clarity.
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  evals:
+    name: Braintrust evals
+    runs-on: ubuntu-latest
+    # Skip on fork PRs: secrets are not exposed to forks by default, so the
+    # eval-action would fail without the API key. Same gate as the smoke
+    # test job in ci.yml.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - uses: braintrustdata/eval-action@v1
+        with:
+          api_key: ${{ secrets.BRAINTRUST_API_KEY }}
+          runtime: node
+          # All eval files matching this pattern get run.
+          root: skills

@@ -9,6 +9,7 @@ A growing collection of opinionated tools for shipping AI into real-world domain
 | Skill | Status | Purpose |
 |---|---|---|
 | [`north-star`](./skills/north-star/) | v0.2 (draft) | Establishes a project's mission and gut-check before brand or implementation work. Conversation-driven; produces a 3-5 sentence paragraph artifact with typed YAML frontmatter. |
+| [`panel-review`](./skills/panel-review/) | v0.1 (draft) | Multi-agent code review of a PR or current-branch diff. Three-model fan-out (Opus, Sonnet, Haiku), discrete severity, Sonnet confidence recheck plus comment polish in one pass, dev approval gate before posting. Worktree-isolated. Build log committed alongside the PR. Optional braintrust trace logging. |
 
 ## Design principles
 
@@ -26,11 +27,27 @@ Changes go through pull requests. Direct pushes to `main` are not allowed.
 2. Make changes; run `npm test` and `npm run validate:skills` locally before pushing.
 3. Open a PR.
 4. **Run a Claude Code review on the PR before merging.** Use the `/review` skill (or equivalent automated reviewer) to surface drift, missing tests, design issues, and style violations before a human reviewer looks at it.
-5. Wait for CI to pass: skill-shape validator and unit tests must both be green.
+5. Wait for CI to pass: skill-shape validator, unit tests, and braintrust integration must all be green.
 6. Address review findings.
 7. Merge.
 
 Branch protection on `main` enforces these rules at the GitHub layer (PR required, CI must pass, no force-pushes, no direct commits).
+
+### Braintrust integration
+
+The `panel-review` skill ships with optional braintrust trace logging. CI's `Braintrust integration` job smoke-tests the SDK on every PR, so the secret must be set before merging anything that touches the trace surface.
+
+Setup (one time):
+
+```bash
+# Local: in ~/.bashrc or your shell rc
+export BRAINTRUST_API_KEY=<your key from braintrust.dev>
+
+# Repo secret: required for CI
+gh secret set BRAINTRUST_API_KEY --repo mollyretter/forward-deployed-engineer-toolkit
+```
+
+The project name `fdet-panel-review` is hardcoded for v0.1. Create the project in braintrust.dev before the first CI run; the SDK will not auto-create it.
 
 ### Skill-shape validation
 

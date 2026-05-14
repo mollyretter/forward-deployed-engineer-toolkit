@@ -59,8 +59,11 @@ export interface NorthStar {
  * which is duplicated for human-readability in the body.
  */
 export function parseNorthStar(markdown: string): NorthStar {
-  const { data, matter: rawFrontmatter } = matter(markdown);
-  if (!rawFrontmatter || rawFrontmatter.length === 0) {
+  const { data } = matter(markdown);
+  // Check `data` rather than the `matter` field: gray-matter caches by input
+  // and returns a shallow copy on repeat calls, which loses non-enumerable
+  // fields (including `matter`). Object.keys length is robust against that.
+  if (Object.keys(data).length === 0) {
     throw new Error(
       "parseNorthStar: input has no YAML frontmatter; expected --- block at top of file",
     );
