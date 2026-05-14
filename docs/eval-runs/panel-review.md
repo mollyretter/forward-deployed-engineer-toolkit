@@ -1,7 +1,7 @@
 ---
 skill: panel-review
-runs_total: 0
-runs_labeled: 0
+runs_total: 1
+runs_labeled: 1
 last_updated_at: 2026-05-13
 schema: forward-deployed-engineer-toolkit/eval-runs/v1
 ---
