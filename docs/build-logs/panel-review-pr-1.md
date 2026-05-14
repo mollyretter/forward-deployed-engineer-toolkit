@@ -4,8 +4,10 @@ repo: mollyretter/forward-deployed-engineer-toolkit
 head_sha: 8dd198dcfdce72152190a579941826209210d09b
 reviewed_at: 2026-05-13
 verdict: approved
-posted: false
+posted: true
 total_tokens: 294979
+posted_at: 2026-05-14T02:33:14Z
+posted_url: https://github.com/mollyretter/forward-deployed-engineer-toolkit/pull/1#pullrequestreview
 schema: forward-deployed-engineer-toolkit/panel-review/v1
 ---
 
@@ -232,6 +234,8 @@ New issues introduced by the fixes: **none**.
 - `npm run flush-traces`: OK, flushed 6 trace(s); 0 skipped. (Required Node 20.18.0; default Node 19.0.0 lacks `diagnostics_channel.tracingChannel` which braintrust SDK requires.)
 - `npm run promote-to-dataset`: OK, promoted 1 labeled trace; 0 unlabeled, 0 missing fields skipped. Dataset record id: `mollyretter--forward-deployed-engineer-toolkit-pr1-8dd198dcfdce-v0.1.0`.
 - `docs/eval-runs/panel-review.md`: `runs_total: 0 → 1`, `runs_labeled: 0 → 1`, `last_updated_at: 2026-05-13`.
+- `gh pr edit 1 --body-file`: PR description updated to reflect the dogfood run + in-branch fixes + Node-version follow-up.
+- `gh pr review 1 --comment`: Shape A approve comment posted at `2026-05-14T02:33:14Z`. (State: COMMENTED.)
 
 ## Retro
 
