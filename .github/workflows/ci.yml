@@ -28,3 +28,28 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
+
+  braintrust-integration:
+    name: Braintrust integration
+    runs-on: ubuntu-latest
+    needs: [validate-skills, test]
+    # Skip on fork PRs: GitHub does not expose secrets to fork workflows by
+    # default, so this job would hard-fail for any external contributor.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      BRAINTRUST_API_KEY: ${{ secrets.BRAINTRUST_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Verify BRAINTRUST_API_KEY secret is set
+        run: |
+          if [ -z "$BRAINTRUST_API_KEY" ]; then
+            echo "::error::BRAINTRUST_API_KEY secret is not set. Add it via 'gh secret set BRAINTRUST_API_KEY --repo mollyretter/forward-deployed-engineer-toolkit' before merging."
+            exit 1
+          fi
+      - name: Braintrust smoke test (send + flush a trace)
+        run: npm run braintrust:smoke

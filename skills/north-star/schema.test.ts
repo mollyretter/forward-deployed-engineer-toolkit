@@ -104,6 +104,13 @@ describe("parseNorthStar", () => {
     expect(result.paragraph).toContain("Acme Project is a thing");
   });
 
+  it("succeeds on repeated calls with the same input (regression: gray-matter cache shallow-copy drops non-enumerable fields)", () => {
+    expect(() => parseNorthStar(validMarkdown)).not.toThrow();
+    expect(() => parseNorthStar(validMarkdown)).not.toThrow();
+    const second = parseNorthStar(validMarkdown);
+    expect(second.locked_at).toBe("2026-05-10");
+  });
+
   it("throws when there is no frontmatter", () => {
     expect(() => parseNorthStar("# just a markdown title\n\nno frontmatter here")).toThrow(
       /no YAML frontmatter/,

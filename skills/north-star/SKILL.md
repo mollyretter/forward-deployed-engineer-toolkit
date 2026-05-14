@@ -1,5 +1,6 @@
 ---
 name: north-star
+version: 0.2.1
 description: Step 0 for going from 0 to 1 in any new project, business, or pivot. Conducts a structured 3-question self-interview, produces a 3-5 sentence paragraph artifact at docs/00-north-star.md plus a build log capturing the full session and consolidated positioning context for downstream skills. Drift-mode supported. Cross-model review required at lock. Designed to prevent identity drift during early-stage builds.
 ---
 
@@ -43,6 +44,10 @@ Downstream skills (e.g. `feature`) read (1) and (2) at requirements-gathering ti
 12. **Build log uses verbatim quotes for founder language.** When the interviewer's notes summarize what the founder said, mark it explicitly as a summary; the verbatim founder answers are the source of truth for downstream skills. Don't paraphrase silently.
 13. **Founder overwhelm is a course-correction trigger.** If the founder says *"this is a lot,"* *"this is overwhelming,"* or similar, stop the current approach and find a smaller surface. Don't push through. The most common moment this fires is when the interviewer is presenting list-mode confirmations; the right correction is to skip lists and let the founder react to a draft instead.
 
+14. **Trace logging is env-var opt-in.** If `BRAINTRUST_API_KEY` is set, the skill accumulates interview transcripts, draft versions, cross-model reviews, and the lock event in `/tmp/claude/north-star-traces-<project-slug>.jsonl`, then flushes to the configured braintrust project via `npm run flush-traces` in Phase 6. Without the env var, all logging no-ops. Traces are private (braintrust SaaS); the `<consumer-repo>/docs/build-logs/` and `<consumer-repo>/docs/eval-runs/north-star.md` files are committed to whichever repo the skill is run against and inherit that repo's public-or-private status. Run with the env var off for projects whose transcripts should not leave the local machine.
+
+15. **CI scripts must not echo trace content.** Any script under `scripts/` or workflow under `.github/workflows/` that touches braintrust data may print only aggregate numbers. Canonical statement lives in `CLAUDE.md`; repeated here so future SKILL.md edits surface it to the agent during a run.
+
 ## The 3 interview questions
 
 Ask one at a time. Listen. Reflect back what you heard *in the founder's own words*. Move on only when they confirm.
@@ -81,7 +86,29 @@ Six phases. The build log is populated throughout, append after each phase, not 
 
 2. **Interview.** Work through the 3 questions. Capture literal language in the build log. Append founder's verbatim answers, your reflections (clearly marked as summaries, not quotes, per Hard rule 12), and any "sat with it" moments. Note bright-line and counter-persona signals as they surface; they go into the positioning-context section, not into the artifact paragraph.
 
+   **Trace each question — REQUIRED.** After each question's discussion completes, run the append-trace wrapper (write input and output to temp JSON files first to avoid CLI quoting issues on large transcripts):
+   ```bash
+   npm run append-trace -- \
+     --jsonl /tmp/claude/north-star-traces-{project-slug}.jsonl \
+     --name north-star/interview/q<1|2|3> \
+     --input-file <path-to-question-input.json> \
+     --output-file <path-to-question-output.json> \
+     --metadata '{"phase":"interview","question":<1|2|3>,"project":"<project-slug>","mode":"fresh-start|drift","skill_version":"<version from this SKILL.md frontmatter>"}'
+   ```
+   Input file: `{"question":"<question text>","prior_context":"<accumulated content so far>"}`. Output file: `{"transcript":"<founder verbatim>","summaries":["<reflections>"],"bright_line_signals":["..."]}`.
+
 3. **Synthesize.** Draft v1 of the paragraph (3 to 5 sentences) using the founder's words; iterate it conversationally with the founder for the first version. Once the v1 draft sounds *roughly* right, **open `<project>/docs/00-north-star.md` in the founder's editor** (`code <path>`, `$EDITOR <path>`, etc.) and hand the editing experience over to them. Track the draft version (v1, v2, ..., vN) in the build log with the reason each version was rejected or evolved; this version history is how drift-prevention is shown.
+
+   **Trace each draft version — REQUIRED.** Run the append-trace wrapper per draft (v1, v2, ..., vN):
+   ```bash
+   npm run append-trace -- \
+     --jsonl /tmp/claude/north-star-traces-{project-slug}.jsonl \
+     --name north-star/synthesis/v<N> \
+     --input-file <path-to-synthesis-input.json> \
+     --output-file <path-to-synthesis-output.json> \
+     --metadata '{"phase":"synthesis","draft_version":<N>,"project":"<project-slug>","skill_version":"<version>"}'
+   ```
+   Input: `{"transcript_accumulated":"<Q1+Q2+Q3 verbatim>","prior_draft":"<vN-1 paragraph or null>"}`. Output: `{"paragraph":"<vN paragraph>","rejection_reason":"<why prior was rejected, or null for v1>"}`.
 
 4. **Cross-model review.** Two patterns:
    - **Mid-flight (optional, single model):** at any point during the run, the interviewer or founder may spawn a review agent on a different model (via the Task / Agent tool with `model="<other>"`) to check the work-so-far against the build log. Default pairing: if running on Sonnet, review on Opus; if on Opus, review on Sonnet; Haiku as a fallback for speed. The reviewer returns a punch list; the interviewer surfaces it in chat; the founder triages. Append the review verbatim AND an **"Items acted on"** block listing which items were addressed. The Items-acted-on block is the most navigable element of the build log; don't skip it.
@@ -90,6 +117,47 @@ Six phases. The build log is populated throughout, append after each phase, not 
 5. **Propose ADRs (optional).** After the artifact locks, the interviewer reviews the bright-line signals collected in the positioning context and proposes 1 to 3 of them as candidate ADRs (e.g. *"ADR: AI in operational layer only, not customer-facing"*). The founder opts in per ADR; draft together if yes. ADRs are not required; many runs will produce zero. *(This phase is designed but ADR formalization was not exercised in the inaugural run.)*
 
 6. **Lock.** Write `docs/00-north-star.md` with YAML frontmatter, paragraph body, and provenance line. Add the consolidated **Positioning context for downstream skills** section to the build log. In drift mode, archive prior version to `docs/north-star-archive/north-star-v{N}-YYYY-MM-DD.md` and add a `## Changelog` section to the new artifact body. The changelog lives in body markdown only; it is not a structured frontmatter field.
+
+   **Trace the lock event — REQUIRED.** Run the append-trace wrapper one final time:
+   ```bash
+   npm run append-trace -- \
+     --jsonl /tmp/claude/north-star-traces-{project-slug}.jsonl \
+     --name north-star/lock \
+     --input-file <path-to-lock-input.json> \
+     --output-file <path-to-lock-output.json> \
+     --metadata '{"phase":"lock","project":"<project-slug>","mode":"fresh-start|drift","skill_version":"<version>"}'
+   ```
+   Input: `{"final_draft":"<paragraph>","review_findings":[...]}`. Output: `{"locked_paragraph":"<paragraph>","artifact_path":"<consumer-repo>/docs/00-north-star.md","version":<N>}`.
+
+   **Flush traces and increment the usage counter.**
+   - Run `npm run flush-traces -- /tmp/claude/north-star-traces-<project-slug>.jsonl`. The script no-ops without `BRAINTRUST_API_KEY` and prints only an aggregate count, never trace content.
+   - Read `<consumer-repo>/docs/eval-runs/north-star.md`. If the file does not exist, create it with `runs_total: 0` and `runs_drift: 0`.
+   - Increment `runs_total` by 1.
+   - Increment `runs_drift` by 1 if this was a drift-mode run.
+   - Set `last_updated_at` to today's ISO date.
+   - Commit the counter file alongside the build log.
+
+   The counter is a usage indicator. Eval scorers for north-star (when added) live at `skills/north-star/evals/*.eval.ts` and run via the braintrust eval-action against logged traces; the counter file does not drive evals.
+
+## Versioning
+
+The skill version is the `version` field in this file's YAML frontmatter (currently `0.2.1`). It is the single source of truth. The agent reads it at the start of each run and includes it in every `logTrace` metadata as `skill_version`.
+
+**When to bump the version:** when the agent's behavior changes in a way that invalidates prior labeled traces. Bump on interview question changes, synthesis prompt changes, cross-model review prompt changes, hard-rule changes. Do not bump on typo fixes, README rewording, or test additions that do not change skill behavior.
+
+**Why version matters:** when SKILL.md changes meaningfully, old labeled traces are evaluating a different system. Tagging every trace with `skill_version` lets future eval analysis filter by version. The counter in `docs/eval-runs/north-star.md` stays cumulative (it does NOT reset on bump); per-version slicing is a property of the traces themselves.
+
+**Reading the version at runtime (agent):** the `version` field in this file's frontmatter (the YAML block at the top, currently `version: 0.2.1`) is already loaded into your context when Claude Code invokes the skill. Extract the literal value once at the start of the run, hold it in working memory, and pass it into every `logTrace` line's `metadata.skill_version`. Do NOT shell out to grep: the working directory during a run is the consumer repo, not the toolkit, and there is no `SKILL.md` there to read.
+
+## Trace logging
+
+Every real run accumulates traces in a temporary JSONL file at `/tmp/claude/north-star-traces-<project-slug>.jsonl`. One line per interview question (Q1, Q2, Q3), one per draft version (v1..vN), one per cross-model review (mid-flight and pre-lock fan-out), and one for the final lock event. At Phase 6 lock, `npm run flush-traces -- <path>` reads the file, calls `logTrace` for each line, and flushes the braintrust buffer. The JSONL file is preserved on disk (not deleted) so you can inspect what was sent if a flush fails or you need to debug. `/tmp/` is cleared on system reboot, so the files are ephemeral but inspectable until then.
+
+**Shape of each JSONL line:** `{ name, input, output, metadata }`. Each phase above shows the specific shape inline.
+
+**Privacy:** the JSONL file lives in `/tmp/`, never the repo. The flush script prints only aggregate counts to stdout. Trace payloads flow only to the configured braintrust project (private). If `BRAINTRUST_API_KEY` is unset, `logTrace` no-ops and nothing leaves the machine. north-star transcripts contain sensitive founder content (felt-experience answers, founder-market-fit stories); the env-var gating is what lets you run the skill on sensitive projects without forwarding.
+
+**Counter:** Phase 6 lock also increments `<consumer-repo>/docs/eval-runs/north-star.md` (`runs_total` and `runs_drift`). This counter is just numbers; it never contains transcript content.
 
 ## Drift mode
 

@@ -1,0 +1,29 @@
+{
+  "name": "@forward-deployed-engineer-toolkit/panel-review",
+  "version": "0.1.0",
+  "description": "Schema, parser, and trace-logging stub for the panel-review skill's build-log artifact (docs/build-logs/panel-review-pr-N.md).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./schema.ts",
+  "types": "./schema.ts",
+  "exports": {
+    ".": {
+      "types": "./schema.ts",
+      "default": "./schema.ts"
+    },
+    "./traces": {
+      "types": "./traces.ts",
+      "default": "./traces.ts"
+    }
+  },
+  "files": [
+    "schema.ts",
+    "traces.ts",
+    "SKILL.md",
+    "README.md"
+  ],
+  "dependencies": {
+    "braintrust": "^3.10.0",
+    "gray-matter": "^4.0.3"
+  }
+}
