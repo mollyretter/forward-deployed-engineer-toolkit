@@ -181,4 +181,26 @@ describe("flushTraces", () => {
     await flushTraces();
     expect(mockFlush).toHaveBeenCalledTimes(1);
   });
+
+  it("short-circuits after a logged async failure before the .catch microtask drains", async () => {
+    // Regression for the F3 race: a sync flushTraces call after a logTrace
+    // whose .catch hasn't fired must NOT proceed to flush(). The async log
+    // failure sets initFailed=true and nullifies logger inside a microtask;
+    // if flushTraces only checks !logger, the microtask-not-drained window
+    // would call flush() on a logger whose last write failed.
+    process.env.BRAINTRUST_API_KEY = "fake-key-for-test";
+    mockLogFn.mockReturnValue(Promise.reject(new Error("async log boom")));
+    const writeSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    logTrace(sampleTrace);
+    // Drain microtasks so the .catch fires and sets initFailed=true.
+    await new Promise((resolve) => setImmediate(resolve));
+
+    // Now flushTraces must short-circuit even though we don't directly null
+    // logger here — the .catch already set initFailed=true.
+    await flushTraces();
+    expect(mockFlush).not.toHaveBeenCalled();
+
+    writeSpy.mockRestore();
+  });
 });

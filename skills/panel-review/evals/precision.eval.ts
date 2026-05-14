@@ -143,9 +143,13 @@ Eval(PROJECT_NAME, {
           metadata: { ...(record.metadata ?? {}), source: "real" },
         });
       }
-    } catch (err) {
+    } catch {
       // Dataset does not exist yet or is unreachable; synthetic fixtures alone.
-      console.warn(`Note: Dataset "${DATASET_NAME}" unavailable (${(err as Error).message}); running on synthetic fixtures only.`);
+      // SDK error message intentionally NOT echoed: this runs in public GitHub
+      // Actions logs and SDK errors may contain API response bodies (auth
+      // details, 429 payloads). CLAUDE.md privacy rule: aggregate/sanitized
+      // status only.
+      console.warn(`Note: Dataset "${DATASET_NAME}" unavailable; running on synthetic fixtures only.`);
     }
 
     return cases;
