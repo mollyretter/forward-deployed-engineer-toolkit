@@ -117,7 +117,9 @@ async function main(): Promise<void> {
     }
 
     // Stable id so reruns on the same commit upsert rather than duplicate.
-    const id = `${repo.replace("/", "--")}-pr${pr_number}-${head_sha.slice(0, 12)}-v${skill_version}`;
+    // `replaceAll` (not `replace`) so a multi-slash repo value can't silently
+    // collide with another repo sharing the same prefix.
+    const id = `${repo.replaceAll("/", "--")}-pr${pr_number}-${head_sha.slice(0, 12)}-v${skill_version}`;
 
     dataset.insert({
       id,

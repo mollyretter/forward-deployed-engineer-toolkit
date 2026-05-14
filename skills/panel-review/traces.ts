@@ -110,7 +110,10 @@ export function logTrace(trace: TraceInput): void {
  * traces are sent (CI smoke tests, short-lived scripts).
  */
 export async function flushTraces(): Promise<void> {
-  if (!logger) return;
+  // Guard `initFailed` too: a sync flushTraces call after a failed async
+  // `log.log` would otherwise see `logger` still non-null (the `.catch`
+  // microtask hasn't drained yet) and proceed to flush a known-broken logger.
+  if (!logger || initFailed) return;
   try {
     await flush();
   } catch (err) {
