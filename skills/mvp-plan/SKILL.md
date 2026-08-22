@@ -1,7 +1,7 @@
 ---
 name: mvp-plan
 version: 0.1.0
-description: Turn a locked north star into a scoped, gated MVP plan — the riskiest assumption, the smallest product that tests it, numeric success metrics and kill criteria set by the founder, and phase gates that keep build work behind explicit approval. Runs after north-star locks; refuses to run without one.
+description: Turn a locked north star into a scoped, gated MVP plan. The riskiest assumption, the smallest product that tests it, numeric success metrics and kill criteria set by the founder, and phase gates that keep build work behind explicit approval. Runs after north-star locks; refuses to run without one.
 ---
 
 # /mvp-plan — from locked identity to a scoped, gated MVP plan
@@ -44,7 +44,7 @@ Skip for: products without a locked north star (run `north-star` first — this 
 Six phases below. The build log is populated throughout — append after each phase, and after each interview question within Phase 3, not at the end.
 
 1. **Detect mode.** `docs/002-mvp-plan.md` exists and the founder hasn't reopened scope → exit (it's theirs now). Exists and the founder reopened → surgery mode: preserve what holds, change what they name. *(Surgery mode is designed but not yet exercised; the first re-open run should refine this into a prompt script the way north-star's drift mode has one.)* Missing → fresh run. Open the build log with the header (project, founder, date, mode, models).
-2. **Inputs check.** Read the north star, its build-log positioning context, ADRs, and the research corpus (decision brief first if one exists). Note whether a sibling business-side plan or repo exists; if so, the draft must state the boundary explicitly (what this doc owns vs what lives there). List for the founder what the plan will treat as settled vs open; the founder corrects before the interview starts.
+2. **Inputs check.** Read the north star, its build-log positioning context, ADRs, and the research corpus (decision brief first if one exists). Present the settled-vs-open check as a SHORT summary, a few lines each way, never a long two-column list: north-star hard rule 13's overwhelm trigger applies here, and the first dogfood run confirmed it (the founder's reaction to a 22-item list was to ask what to do with it, then abort). Note whether a sibling business-side plan or repo exists; if so, the draft must state the boundary explicitly (what this doc owns vs what lives there). List for the founder what the plan will treat as settled vs open; the founder corrects before the interview starts.
 3. **Interview** (above). Capture verbatim; append to the build log after each question.
 4. **Draft.** Assemble the plan: riskiest assumption → MVP scope in/out → metrics + kill criteria (the founder's, or labeled blanks) → the checklist (the gates rendered as checkboxes, done items included unchecked with date annotations) → open-decisions table (each row names the gate where it's decided) → provenance. Iterate v1 in chat, then hand the founder the file in their editor.
 5. **Pre-lock fan-out** (required, hard rule 8). Punch list to the founder; items-acted-on recorded in the build log.
