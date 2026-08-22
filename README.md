@@ -9,6 +9,7 @@ A growing collection of opinionated tools for shipping AI into real-world domain
 | Skill | Status | Purpose |
 |---|---|---|
 | [`north-star`](./skills/north-star/) | v0.2 (draft) | Establishes a project's mission and gut-check before brand or implementation work. Conversation-driven; produces a 3-5 sentence paragraph artifact with typed YAML frontmatter. |
+| [`mvp-plan`](./skills/mvp-plan/) | v0.1 (draft) | Turns a locked north star into a scoped, gated MVP plan. Checklist-spined artifact from idea to launch; founder-owned success metrics and kill criteria; DRAFT until the founder flips it; cross-model fan-out at lock. |
 | [`panel-review`](./skills/panel-review/) | v0.1 (draft) | Multi-agent code review of a PR or current-branch diff. Three-model fan-out (Opus, Sonnet, Haiku), discrete severity, Sonnet confidence recheck plus comment polish in one pass, dev approval gate before posting. Worktree-isolated. Build log committed alongside the PR. Optional braintrust trace logging. |
 
 ## Design principles
